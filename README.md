@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Notion Convert Playground
+
+powered by [notion-to-md v4](https://github.com/souvikinator/notion-to-md/tree/v4.0.0-alpha)
+
+## Overview
+
+Notion Convert Playground is a simple tool that provides a seamless interface for converting Notion pages to various formats (MD, MDX, JSX, HTML, etc...) while maintaining the structure, formatting, and content hierarchy. 
+
+## Status
+
+Under development
+
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18.x
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/your-username/notion-converter-playground.git
+cd notion-converter-playground
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn
+```
+
+3. Create a `.env.local` file in the root directory and add your environment variables:
+
+```
+# Notion API
+NOTION_CLIENT_ID=your_notion_client_id
+NOTION_CLIENT_SECRET=your_notion_client_secret
+NOTION_REDIRECT_URI=http://localhost:3000/api/auth/callback/notion
+
+# Authentication (NextAuth)
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=http://localhost:3000
+
+# Optional: Analytics
+NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
+```
+
+4. Run the development server:
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000/playground](http://localhost:3000/playground) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Converting a Notion Page
 
-## Learn More
+1. Connect to your Notion workspace:
+   - Sign in with your account (Google/GitHub) and authorize the Notion integration
+   - OR enter your Notion integration key directly
 
-To learn more about Next.js, take a look at the following resources:
+2. Select a page from your workspace or enter a page ID
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Choose your desired output format
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Click "Convert" to generate your content
 
-## Deploy on Vercel
+5. Use the action buttons to download, copy, or share your converted content
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Creating a Notion Integration Key
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If you prefer to use an integration key instead of signing in:
+
+1. Go to [notion.so/my-integrations](https://www.notion.so/my-integrations)
+2. Click "New integration"
+3. Name your integration and submit
+4. Copy the "Internal Integration Token"
+5. Share the specific Notion pages you want to access with your integration
+
+## Contributing
+
+We welcome contributions to improve Notion Converter Playground! Please follow these steps to contribute:
+
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests to ensure everything works as expected
+5. Commit your changes (`git commit -m 'Add some amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Development Guidelines
+
+- Follow the existing code style and component structure
+- Write meaningful commit messages
+- Add appropriate comments for complex logic
+- Update documentation for significant changes
+- Important: Try to use SSR as and when possible 
+
+## Support & Feedback
+
+For support or feedback, please [open an issue](https://github.com/notion-convert/notion-converter-playground/issues)
+
+---
+
+Built with ❤️ for Notion users everywhere
