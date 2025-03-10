@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/AuthProvider";
 import { AuthProvider } from "@/types";
+import { useState } from "react";
 
 interface AuthModalProps {
   open: boolean;
@@ -20,10 +21,19 @@ interface AuthModalProps {
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (provider: AuthProvider) => {
-    await login(provider);
-    onOpenChange(false);
+    setIsLoading(true);
+    try {
+      await login(provider);
+      // We'll keep the modal open in case of errors
+      // The login function will handle the error toasts
+    } catch (error) {
+      console.error("Authentication error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -43,17 +53,19 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             className="flex items-center justify-center gap-2 w-full"
             variant="outline"
             onClick={() => handleLogin("github")}
+            disabled={isLoading}
           >
             <FiGithub className="h-5 w-5" />
-            <span>Continue with GitHub</span>
+            <span>{isLoading ? "Please wait..." : "Continue with GitHub"}</span>
           </Button>
           <Button
             className="flex items-center justify-center gap-2 w-full"
             variant="outline"
             onClick={() => handleLogin("google")}
+            disabled={isLoading}
           >
             <SiGoogle className="h-5 w-5" />
-            <span>Continue with Google</span>
+            <span>{isLoading ? "Please wait..." : "Continue with Google"}</span>
           </Button>
         </div>
       </DialogContent>

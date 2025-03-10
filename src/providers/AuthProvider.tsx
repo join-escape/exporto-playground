@@ -3,6 +3,7 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useSession, signIn, signOut, SessionProvider } from "next-auth/react";
 import { AuthProvider as AuthProviderType } from "@/types";
+import { toast } from "sonner";
 
 interface AuthContextType {
   user: any;
@@ -18,9 +19,28 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
   const isLoading = status === "loading";
 
-  // Login function
+  // Login function with error handling
   const login = async (provider: AuthProviderType) => {
-    await signIn(provider, { callbackUrl: "/playground" });
+    try {
+      const result = await signIn(provider, {
+        callbackUrl: "/playground",
+        redirect: false, // Don't redirect automatically, handle it ourselves
+      });
+
+      // Check if there was an error
+      if (result?.error) {
+        // Extract and show the error message
+        const errorMessage = result.error;
+        toast.error(
+          errorMessage.includes("associated with")
+            ? errorMessage
+            : "Authentication failed. Please try again.",
+        );
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Authentication failed. Please try again.");
+    }
   };
 
   // Logout function

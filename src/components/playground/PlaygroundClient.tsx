@@ -23,6 +23,7 @@ import { ConversionForm } from "@/components/conversion/ConversionForm";
 import { ConvertedContent } from "@/components/conversion/ConvertedContent";
 import { useAuth } from "@/providers/AuthProvider";
 import { NotionConnectionStatus, NotionPage, OutputFormat } from "@/types";
+import { useSearchParams, useRouter } from "next/navigation";
 
 // Simulated page data for demonstration - will come from API in real implementation
 const samplePages: NotionPage[] = [
@@ -72,6 +73,8 @@ Check out our [documentation](https://example.com/docs) for more information.
 
 export default function PlaygroundClient() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   // State management
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -79,12 +82,39 @@ export default function PlaygroundClient() {
     useState<NotionConnectionStatus>({
       isConnected: false,
     });
+  const [isMounted, setIsMounted] = useState(false);
   const [selectedPageId, setSelectedPageId] = useState("");
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("markdown");
   const [convertedContent, setConvertedContent] = useState<string | null>(null);
   const [isConverting, setIsConverting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [activeStep, setActiveStep] = useState<string>("step-1");
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      // Only show toast after component is mounted on client
+      const error = searchParams.get("error");
+      if (error) {
+        toast.error("Authentication Error", {
+          description: decodeURIComponent(error),
+          duration: 5000,
+        });
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete("error");
+
+        // Update the URL without the error parameter
+        const newPathname = newSearchParams.toString()
+          ? `/playground?${newSearchParams.toString()}`
+          : "/playground";
+
+        router.replace(newPathname);
+      }
+    }
+  }, [searchParams, isMounted, router]);
 
   // Reset state when user changes
   useEffect(() => {
