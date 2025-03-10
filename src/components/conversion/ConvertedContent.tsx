@@ -1,12 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FiInfo, FiCheck, FiCopy, FiDownload, FiTwitter } from "react-icons/fi";
+import { toast } from "sonner";
+import {
+  FiInfo,
+  FiCheck,
+  FiCopy,
+  FiDownload,
+  FiTwitter,
+  FiGithub,
+} from "react-icons/fi";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AnimatePresence, motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { CaseSensitive, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 interface ConvertedContentProps {
   content: string | null;
@@ -19,7 +29,7 @@ interface ConvertedContentProps {
 export function ConvertedContent({
   content,
   isAuthenticated,
-  // isConnectedToNotion,
+  isConnectedToNotion,
   showSuccess,
   onAuth,
 }: ConvertedContentProps) {
@@ -36,6 +46,7 @@ export function ConvertedContent({
     if (content) {
       navigator.clipboard.writeText(content);
       setCopied(true);
+      toast.success("Content copied to clipboard");
     }
   };
 
@@ -51,12 +62,48 @@ export function ConvertedContent({
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    toast.success("Content downloaded", {
+      description: "Saved as notion-converted.md",
+    });
   };
 
   return (
     <div className="border rounded-lg h-[calc(100vh-160px)] flex flex-col overflow-hidden">
-      <div className="border-b px-4 py-3 bg-card">
-        <h2 className="font-medium">Converted content will appear here</h2>
+      <div className="border-b px-4 py-3 bg-card flex items-center justify-between">
+        <h2 className="font-medium">Output</h2>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1 text-xs"
+            asChild
+          >
+            <Link
+              href="https://github.com/souvikinator/notion-to-md/issues/new?title=[Bug] Summarize the issue"
+              target="_blank"
+              referrerPolicy="no-referrer"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Report a Bug
+            </Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1 text-xs"
+            asChild
+          >
+            <Link
+              href="https://github.com/souvikinator/notion-to-md/issues/new?title=[Feature%20Request] Summarize the feature"
+              target="_blank"
+              referrerPolicy="no-referrer"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Request a Feature
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-hidden relative">
@@ -67,87 +114,95 @@ export function ConvertedContent({
                 {content}
               </pre>
             ) : (
-              <div className="flex flex-col items-center justify-center space-y-8 py-6">
-                {!isAuthenticated && (
-                  <Card className="w-full bg-blue-500/10 border-blue-500/20 max-w-lg mx-auto">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-center text-blue-500 mb-4">
-                        <FiInfo className="h-8 w-8" />
-                      </div>
-                      <p className="text-center mb-4">
-                        Sign up/Login to directly connect to your Notion
-                        workspace for a seamless experience
-                      </p>
-                      <Button onClick={onAuth} className="w-full">
-                        Sign in
-                      </Button>
-                    </CardContent>
-                  </Card>
+              <div className="flex flex-col items-center justify-center space-y-4 py-4 mx-4">
+                {/* 1. Powered by notion-to-md section */}
+                <Alert className="bg-primary/5 border-primary/20 text-primary flex justify-between items-center">
+                  <AlertDescription className="flex justify-between items-center">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    <span className="text-sm">
+                      Powered by <strong>notion-to-md</strong>
+                    </span>
+                    <Badge variant="outline" className="text-sm">
+                      v4
+                    </Badge>
+                  </AlertDescription>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1 text-xs"
+                    asChild
+                  >
+                    <Link
+                      href="https://github.com/souvikinator/notion-to-md"
+                      target="_blank"
+                      referrerPolicy="no-referrer"
+                    >
+                      <FiGithub className="h-3.5 w-3.5" />
+                      View on GitHub
+                    </Link>
+                  </Button>
+                </Alert>
+
+                {/* 2. Sign up prompt - only if not authenticated */}
+                {!isAuthenticated && !isConnectedToNotion && (
+                  <Alert className="bg-primary/5 border-primary/20 text-primary flex justify-between items-center">
+                    <AlertDescription className="flex justify-between items-center">
+                      <FiInfo className="h-4 w-4 mr-2" />
+                      <span>
+                        Sign in for a seamless Notion connection experience
+                      </span>
+                    </AlertDescription>
+                    <Button size="sm" onClick={onAuth} className="h-8 ml-2">
+                      Sign in
+                    </Button>
+                  </Alert>
                 )}
 
-                <div className="max-w-lg mx-auto w-full">
-                  <h3 className="font-medium text-xl text-center mb-4">
-                    Steps on how to use the tool
-                  </h3>
-                  <ol className="space-y-3 text-muted-foreground">
-                    <li className="flex gap-2">
-                      <span className="font-medium">1.</span>
-                      <span>Connect to your Notion workspace</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="font-medium">2.</span>
-                      <span>
-                        Select a page from the dropdown or enter a page ID
+                {/* 3. Features list - compact */}
+                <div className="w-full py-3">
+                  <h3 className="text-base font-medium mb-3">Key Features</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-start gap-2">
+                      <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-muted-foreground">
+                        Preserves structure & formatting
                       </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="font-medium">3.</span>
-                      <span>Choose your desired output format</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="font-medium">4.</span>
-                      <span>
-                        Click &quot;Convert&quot; to generate your content
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-muted-foreground">
+                        Multiple export formats
                       </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="font-medium">5.</span>
-                      <span>
-                        Download, copy, or share your converted content
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-muted-foreground">
+                        Handles complex tables & blocks
                       </span>
-                    </li>
-                  </ol>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-muted-foreground">
+                        Privacy focused & fast processing
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <Card className="w-full max-w-lg mx-auto">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">
-                      Why use our Notion Converter?
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <FiCheck className="mt-1 mr-3 h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span>
-                          Clean, semantic conversion that preserves structure
-                        </span>
-                      </li>
-                      <li className="flex items-start">
-                        <FiCheck className="mt-1 mr-3 h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span>
-                          Multiple output formats including MDX, HTML, and JSX
-                        </span>
-                      </li>
-                      <li className="flex items-start">
-                        <FiCheck className="mt-1 mr-3 h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span>
-                          Fast, secure, and privacy-focused processing
-                        </span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
+                {/* Placeholder illustration */}
+                <div className="w-full flex items-center justify-center p-6">
+                  <div className="border border-dashed border-muted-foreground/30 rounded-lg p-8 text-center flex flex-col items-center">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                      <CaseSensitive />
+                    </div>
+                    <p className="text-muted-foreground text-sm">
+                      Your converted content will appear here
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      Scroll down for detailed instructions
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
           </div>

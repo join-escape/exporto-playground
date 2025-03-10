@@ -8,9 +8,11 @@ powered by [notion-to-md v4](https://github.com/souvikinator/notion-to-md/tree/v
 <img src="https://komarev.com/ghpvc/?username=notion-convert-playground&abbreviated=true&label=REPO+VIEWS" alt="repo views" />
 </p>
 
+<img src="./public/nc-playground.png" alt="Notion Convert Playground" width="600" />
+
 ## Overview
 
-Notion Convert Playground is a simple tool that provides a seamless interface for converting Notion pages to various formats (MD, MDX, JSX, HTML, etc...) while maintaining the structure, formatting, and content hierarchy. 
+Notion Convert Playground is a simple tool that provides a seamless interface for converting Notion pages to various formats (MD, MDX, JSX, HTML, etc...) while maintaining the structure, formatting, and content hierarchy.
 
 ## Status
 
@@ -111,7 +113,7 @@ We welcome contributions to improve Notion Converter Playground! Please follow t
 - Write meaningful commit messages
 - Add appropriate comments for complex logic
 - Update documentation for significant changes
-- Important: Try to use SSR as and when possible 
+- Important: Try to use SSR as and when possible
 
 ## Support & Feedback
 

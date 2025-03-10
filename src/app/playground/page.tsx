@@ -57,7 +57,7 @@ export default function PlaygroundPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            name: "Notion Converter Playground",
+            name: "Notion Convert Playground",
             applicationCategory: "WebApplication",
             operatingSystem: "Web",
             offers: {
@@ -66,7 +66,7 @@ export default function PlaygroundPage() {
               priceCurrency: "USD",
             },
             description:
-              "Convert your Notion pages to Markdown, MDX, HTML, and JSX with perfect formatting and structure preservation.",
+              "Convert or Export your Notion pages to Markdown, MDX, HTML, etc or any other format and export anywhere at an instant",
           }),
         }}
       />

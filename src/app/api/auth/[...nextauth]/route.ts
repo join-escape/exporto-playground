@@ -3,7 +3,7 @@ import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { db } from "@/lib/db";
 import { users, accounts } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const authOptions = {
   providers: [
@@ -25,52 +25,113 @@ export const authOptions = {
     async jwt({ token, user, account }) {
       // Initial sign in
       if (account && user) {
-        // Store minimal user data in the database if it's a new user
         try {
-          const existingUser = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, user.id))
-            .limit(1);
+          // Check if a user with this email already exists
+          let existingUser = null;
+          if (user.email) {
+            // First try to find by email (to prevent duplicates across providers)
+            const usersByEmail = await db
+              .select()
+              .from(users)
+              .where(eq(users.email, user.email))
+              .limit(1);
 
-          if (existingUser.length === 0) {
-            await db.insert(users).values({
-              id: user.id,
-              name: user.name || null,
-              email: user.email || "",
-              image: user.image || null,
-            });
+            if (usersByEmail.length > 0) {
+              existingUser = usersByEmail[0];
+              // Use the existing user ID
+              token.id = existingUser.id;
 
-            await db.insert(accounts).values({
-              id: crypto.randomUUID(),
-              userId: user.id,
-              type: account.type,
-              provider: account.provider,
-              providerAccountId: account.providerAccountId,
-              access_token: account.access_token || null,
-              refresh_token: account.refresh_token || null,
-              expires_at: account.expires_at || null,
-              token_type: account.token_type || null,
-              scope: account.scope || null,
-              id_token: account.id_token || null,
-              session_state: account.session_state || null,
-            });
+              // Check if this account already exists
+              const existingAccount = await db
+                .select()
+                .from(accounts)
+                .where(
+                  and(
+                    eq(accounts.provider, account.provider),
+                    eq(accounts.providerAccountId, account.providerAccountId),
+                  ),
+                )
+                .limit(1);
+
+              // If the account doesn't exist, link it to the existing user
+              if (existingAccount.length === 0) {
+                await db.insert(accounts).values({
+                  id: crypto.randomUUID(),
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token || null,
+                  refresh_token: account.refresh_token || null,
+                  expires_at: account.expires_at || null,
+                  token_type: account.token_type || null,
+                  scope: account.scope || null,
+                  id_token: account.id_token || null,
+                  session_state: account.session_state || null,
+                });
+              }
+
+              // Update user profile if needed (e.g., new image)
+              if (user.image && user.image !== existingUser.image) {
+                await db
+                  .update(users)
+                  .set({ image: user.image })
+                  .where(eq(users.id, existingUser.id));
+              }
+            }
+          }
+
+          // If no existing user was found, create a new one
+          if (!existingUser) {
+            // Check if user exists by ID (fallback)
+            const userById = await db
+              .select()
+              .from(users)
+              .where(eq(users.id, user.id))
+              .limit(1);
+
+            if (userById.length === 0) {
+              // Create new user
+              await db.insert(users).values({
+                id: user.id,
+                name: user.name || null,
+                email: user.email || "",
+                image: user.image || null,
+              });
+
+              // Create new account
+              await db.insert(accounts).values({
+                id: crypto.randomUUID(),
+                userId: user.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token || null,
+                refresh_token: account.refresh_token || null,
+                expires_at: account.expires_at || null,
+                token_type: account.token_type || null,
+                scope: account.scope || null,
+                id_token: account.id_token || null,
+                session_state: account.session_state || null,
+              });
+
+              token.id = user.id;
+            } else {
+              token.id = userById[0].id;
+            }
           }
         } catch (error) {
-          console.error("Error storing user data:", error);
+          console.error("Error managing user data:", error);
         }
 
-        return {
-          ...token,
-          id: user.id,
-        };
+        return token;
       }
 
       return token;
     },
     // @ts-ignore
     async session({ session, token }) {
-      if (token) {
+      if (token && token.id) {
         session.user.id = token.id as string;
       }
       return session;

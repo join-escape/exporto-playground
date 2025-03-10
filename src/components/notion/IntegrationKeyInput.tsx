@@ -56,15 +56,6 @@ export function IntegrationKeyInput({
           Verify
         </Button>
       </div>
-      <div className="mt-2">
-        <Button
-          variant="secondary"
-          className="w-full text-sm h-9"
-          onClick={onAuthRequest}
-        >
-          Sign up/Login to directly connect to your Notion workspace
-        </Button>
-      </div>
     </div>
   );
 }
