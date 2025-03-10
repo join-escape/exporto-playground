@@ -43,6 +43,8 @@ export function PageCombobox({
   loadPages,
   isLoading: externalLoading,
 }: PageComboboxProps) {
+  // Add mounted state to prevent hydration mismatch
+  const [mounted, setMounted] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
   const [pages, setPages] = React.useState<NotionPage[]>([]);
@@ -52,12 +54,18 @@ export function PageCombobox({
     null,
   );
 
+  // Set mounted state after component mounts
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Combine external loading state with internal loading state
   const isLoading = loading || externalLoading;
 
   // Load pages when the search term changes
   React.useEffect(() => {
-    if (!open || disabled || debouncedSearchTerm === undefined) return;
+    if (!mounted || !open || disabled || debouncedSearchTerm === undefined)
+      return;
 
     const fetchPages = async () => {
       setLoading(true);
@@ -72,11 +80,11 @@ export function PageCombobox({
     };
 
     fetchPages();
-  }, [debouncedSearchTerm, open, disabled, loadPages]);
+  }, [debouncedSearchTerm, open, disabled, loadPages, mounted]);
 
   // Initial load when opening the dropdown
   React.useEffect(() => {
-    if (!open || disabled || pages.length > 0) return;
+    if (!mounted || !open || disabled || pages.length > 0) return;
 
     const fetchInitialPages = async () => {
       setLoading(true);
@@ -91,10 +99,12 @@ export function PageCombobox({
     };
 
     fetchInitialPages();
-  }, [open, disabled, pages.length, loadPages]);
+  }, [open, disabled, pages.length, loadPages, mounted]);
 
   // Update selected page when selectedPageId changes
   React.useEffect(() => {
+    if (!mounted) return;
+
     if (selectedPageId && pages.length > 0) {
       const page = pages.find((p) => p.id === selectedPageId);
       if (page) {
@@ -103,7 +113,7 @@ export function PageCombobox({
     } else if (!selectedPageId) {
       setSelectedPage(null);
     }
-  }, [selectedPageId, pages]);
+  }, [selectedPageId, pages, mounted]);
 
   // Handle direct page ID input
   const handleDirectInput = (value: string) => {
@@ -119,6 +129,11 @@ export function PageCombobox({
       onSelectPage(value);
     }
   };
+
+  // Don't render anything until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="space-y-2">
