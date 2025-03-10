@@ -43,8 +43,6 @@ export function PageCombobox({
   loadPages,
   isLoading: externalLoading,
 }: PageComboboxProps) {
-  // Add mounted state to prevent hydration mismatch
-  const [mounted, setMounted] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
   const [pages, setPages] = React.useState<NotionPage[]>([]);
@@ -53,25 +51,22 @@ export function PageCombobox({
   const [selectedPage, setSelectedPage] = React.useState<NotionPage | null>(
     null,
   );
-
-  // Set mounted state after component mounts
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const initialFetchRef = React.useRef(false);
+  const previousSearchRef = React.useRef("");
 
   // Combine external loading state with internal loading state
   const isLoading = loading || externalLoading;
 
-  // Load pages when the search term changes
+  // Load pages when the search term changes or when opened
   React.useEffect(() => {
-    if (!mounted || !open || disabled || debouncedSearchTerm === undefined)
-      return;
+    if (!open || disabled) return;
 
     const fetchPages = async () => {
       setLoading(true);
       try {
         const results = await loadPages(debouncedSearchTerm);
         setPages(results);
+        previousSearchRef.current = debouncedSearchTerm;
       } catch (error) {
         console.error("Failed to load pages:", error);
       } finally {
@@ -79,32 +74,29 @@ export function PageCombobox({
       }
     };
 
-    fetchPages();
-  }, [debouncedSearchTerm, open, disabled, loadPages, mounted]);
+    // Fetch in two cases:
+    // 1. When dropdown is opened and we haven't done initial fetch
+    // 2. When search term changes (and it's different from previous)
+    if (!initialFetchRef.current) {
+      fetchPages();
+      initialFetchRef.current = true;
+    } else if (debouncedSearchTerm !== previousSearchRef.current) {
+      fetchPages();
+    }
+  }, [debouncedSearchTerm, open, disabled, loadPages]);
 
-  // Initial load when opening the dropdown
+  // Reset states when dropdown closes
   React.useEffect(() => {
-    if (!mounted || !open || disabled || pages.length > 0) return;
-
-    const fetchInitialPages = async () => {
-      setLoading(true);
-      try {
-        const results = await loadPages("");
-        setPages(results);
-      } catch (error) {
-        console.error("Failed to load initial pages:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialPages();
-  }, [open, disabled, pages.length, loadPages, mounted]);
+    if (!open) {
+      initialFetchRef.current = false;
+      previousSearchRef.current = "";
+      setInputValue("");
+      setPages([]);
+    }
+  }, [open]);
 
   // Update selected page when selectedPageId changes
   React.useEffect(() => {
-    if (!mounted) return;
-
     if (selectedPageId && pages.length > 0) {
       const page = pages.find((p) => p.id === selectedPageId);
       if (page) {
@@ -113,7 +105,7 @@ export function PageCombobox({
     } else if (!selectedPageId) {
       setSelectedPage(null);
     }
-  }, [selectedPageId, pages, mounted]);
+  }, [selectedPageId, pages]);
 
   // Handle direct page ID input
   const handleDirectInput = (value: string) => {
@@ -129,11 +121,6 @@ export function PageCombobox({
       onSelectPage(value);
     }
   };
-
-  // Don't render anything until mounted to prevent hydration mismatch
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <div className="space-y-2">
