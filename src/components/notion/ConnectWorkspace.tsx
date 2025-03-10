@@ -7,29 +7,37 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { IntegrationKeyInput } from "./IntegrationKeyInput";
 import { NotionConnectionStatus } from "@/types";
-import { FiInfo } from "react-icons/fi";
+import { FiInfo, FiLoader } from "react-icons/fi";
 
 interface ConnectWorkspaceProps {
   isAuthenticated: boolean;
   connectionStatus: NotionConnectionStatus;
   onConnect: (integrationKey?: string) => void;
+  onConnectOAuth: () => void;
   onDisconnect: () => void;
   onAuthRequest: () => void;
+  isConnecting: boolean;
+  isDisconnecting: boolean;
 }
 
 export function ConnectWorkspace({
   isAuthenticated,
   connectionStatus,
   onConnect,
+  onConnectOAuth,
   onDisconnect,
   onAuthRequest,
+  isConnecting,
+  isDisconnecting,
 }: ConnectWorkspaceProps) {
   const [integrationKey, setIntegrationKey] = useState("");
 
   const handleConnect = () => {
     if (isAuthenticated) {
-      onConnect();
+      // If authenticated, initiate OAuth flow
+      onConnectOAuth();
     } else {
+      // If not authenticated, prompt to sign in
       onAuthRequest();
     }
   };
@@ -58,7 +66,15 @@ export function ConnectWorkspace({
               {connectionStatus.workspace?.name || "Notion Workspace"}
             </span>
           </div>
-          <Button variant="destructive" size="sm" onClick={onDisconnect}>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={onDisconnect}
+            disabled={isDisconnecting}
+          >
+            {isDisconnecting ? (
+              <FiLoader className="h-4 w-4 animate-spin mr-2" />
+            ) : null}
             Disconnect
           </Button>
         </div>
@@ -69,9 +85,18 @@ export function ConnectWorkspace({
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
               onClick={handleConnect}
+              disabled={isConnecting}
             >
-              <SiNotion className="h-4 w-4" />
-              <span>Connect Notion Workspace</span>
+              {isConnecting ? (
+                <FiLoader className="h-4 w-4 animate-spin" />
+              ) : (
+                <SiNotion className="h-4 w-4" />
+              )}
+              <span>
+                {isAuthenticated
+                  ? "Connect with Notion"
+                  : "Sign in to Connect with Notion"}
+              </span>
             </Button>
             <div className="text-center text-sm text-muted-foreground my-2">
               or
@@ -82,6 +107,7 @@ export function ConnectWorkspace({
             onChange={setIntegrationKey}
             onVerify={handleVerify}
             onAuthRequest={onAuthRequest}
+            isVerifying={isConnecting}
           />
         </>
       )}

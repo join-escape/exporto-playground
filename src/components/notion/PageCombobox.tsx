@@ -33,6 +33,7 @@ interface PageComboboxProps {
   selectedPageId: string;
   onSelectPage: (pageId: string) => void;
   loadPages: (query: string) => Promise<NotionPage[]>;
+  isLoading: boolean;
 }
 
 export function PageCombobox({
@@ -40,6 +41,7 @@ export function PageCombobox({
   selectedPageId,
   onSelectPage,
   loadPages,
+  isLoading: externalLoading,
 }: PageComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
@@ -50,9 +52,12 @@ export function PageCombobox({
     null,
   );
 
+  // Combine external loading state with internal loading state
+  const isLoading = loading || externalLoading;
+
   // Load pages when the search term changes
   React.useEffect(() => {
-    if (!open || disabled || !debouncedSearchTerm) return;
+    if (!open || disabled || debouncedSearchTerm === undefined) return;
 
     const fetchPages = async () => {
       setLoading(true);
@@ -95,6 +100,8 @@ export function PageCombobox({
       if (page) {
         setSelectedPage(page);
       }
+    } else if (!selectedPageId) {
+      setSelectedPage(null);
     }
   }, [selectedPageId, pages]);
 
@@ -154,7 +161,11 @@ export function PageCombobox({
                 {inputValue || "Select a page or enter ID"}
               </span>
             )}
-            <FiChevronsUp className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {isLoading ? (
+              <FiLoader className="ml-2 h-4 w-4 shrink-0 animate-spin" />
+            ) : (
+              <FiChevronsUp className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start">
@@ -163,13 +174,14 @@ export function PageCombobox({
               placeholder="Search for a page or enter ID..."
               onValueChange={handleDirectInput}
               value={inputValue}
+              disabled={isLoading}
             />
-            {loading && (
+            {isLoading && (
               <div className="flex items-center justify-center py-6">
                 <FiLoader className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             )}
-            {!loading && (
+            {!isLoading && (
               <CommandList>
                 <CommandEmpty>
                   No pages found. You can use a page ID directly.
@@ -193,7 +205,10 @@ export function PageCombobox({
                             : "opacity-0",
                         )}
                       />
-                      <span className="truncate">{page.title}</span>
+                      <span className="truncate flex-1">
+                        {page.title || "Untitled"}
+                      </span>
+                      {page.icon && <span className="ml-2">{page.icon}</span>}
                     </CommandItem>
                   ))}
                 </CommandGroup>

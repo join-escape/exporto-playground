@@ -4,13 +4,14 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiLoader } from "react-icons/fi";
 
 interface IntegrationKeyInputProps {
   value: string;
   onChange: (value: string) => void;
   onVerify: () => void;
   onAuthRequest: () => void;
+  isLoading: boolean;
 }
 
 export function IntegrationKeyInput({
@@ -18,6 +19,7 @@ export function IntegrationKeyInput({
   onChange,
   onVerify,
   onAuthRequest,
+  isLoading,
 }: IntegrationKeyInputProps) {
   const [showKey, setShowKey] = useState(false);
 
@@ -33,6 +35,7 @@ export function IntegrationKeyInput({
             onChange={(e) => onChange(e.target.value)}
             className="pr-10"
             placeholder="secret_..."
+            disabled={isLoading}
           />
           <Button
             type="button"
@@ -40,6 +43,7 @@ export function IntegrationKeyInput({
             size="icon"
             className="absolute right-0 top-0 h-full"
             onClick={() => setShowKey(!showKey)}
+            disabled={isLoading}
           >
             {showKey ? (
               <FiEyeOff className="h-4 w-4" />
@@ -51,8 +55,11 @@ export function IntegrationKeyInput({
         <Button
           className="ml-2"
           onClick={onVerify}
-          disabled={value.trim().length === 0}
+          disabled={value.trim().length === 0 || isLoading}
         >
+          {isLoading ? (
+            <FiLoader className="h-4 w-4 animate-spin mr-2" />
+          ) : null}
           Verify
         </Button>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import {
   Accordion,
@@ -22,54 +22,11 @@ import { ConnectWorkspace } from "@/components/notion/ConnectWorkspace";
 import { ConversionForm } from "@/components/conversion/ConversionForm";
 import { ConvertedContent } from "@/components/conversion/ConvertedContent";
 import { useAuth } from "@/providers/AuthProvider";
-import { NotionConnectionStatus, NotionPage, OutputFormat } from "@/types";
+import { OutputFormat } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
-
-// Simulated page data for demonstration - will come from API in real implementation
-const samplePages: NotionPage[] = [
-  { id: "page1", title: "Getting Started Guide" },
-  { id: "page2", title: "Project Roadmap" },
-  { id: "page3", title: "Meeting Notes" },
-  { id: "page4", title: "Product Requirements" },
-  { id: "page5", title: "Weekly Updates" },
-  { id: "page6", title: "Design System" },
-];
-
-// Simulated conversion output
-const sampleOutput = `
-# Getting Started Guide
-
-## Introduction
-
-Welcome to our product! This guide will help you get started quickly.
-
-## Installation
-
-\`\`\`bash
-npm install @company/product
-\`\`\`
-
-## Basic Usage
-
-\`\`\`javascript
-import { initialize } from '@company/product';
-
-initialize({
-  apiKey: 'your-api-key',
-  environment: 'production'
-});
-\`\`\`
-
-## Features
-
-- **Feature 1**: Description of feature 1
-- **Feature 2**: Description of feature 2
-- **Feature 3**: Description of feature 3
-
-## Next Steps
-
-Check out our [documentation](https://example.com/docs) for more information.
-`;
+import { useNotionConnection } from "@/hooks/useNotionConnection";
+import { useNotionPages } from "@/hooks/useNotionPages";
+import { useNotionConverter } from "@/hooks/useNotionConvert";
 
 export default function PlaygroundClient() {
   const { user } = useAuth();
@@ -78,17 +35,36 @@ export default function PlaygroundClient() {
 
   // State management
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [connectionStatus, setConnectionStatus] =
-    useState<NotionConnectionStatus>({
-      isConnected: false,
-    });
   const [isMounted, setIsMounted] = useState(false);
   const [selectedPageId, setSelectedPageId] = useState("");
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("markdown");
-  const [convertedContent, setConvertedContent] = useState<string | null>(null);
-  const [isConverting, setIsConverting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [activeStep, setActiveStep] = useState<string>("step-1");
+  const isInitialMount = useRef(true);
+
+  // Custom hooks for Notion integration
+  const {
+    connectionStatus,
+    isCheckingStatus,
+    isConnecting,
+    isDisconnecting,
+    localIntegrationKey,
+    connectWithKey,
+    connectWithOAuth,
+    disconnect,
+    checkConnectionStatus,
+  } = useNotionConnection();
+
+  const { isLoading: isPagesLoading, searchPages } = useNotionPages({
+    isConnected: connectionStatus.isConnected,
+    localIntegrationKey,
+  });
+
+  const { isConverting, convertedContent, convertPage, setConvertedContent } =
+    useNotionConverter({
+      isConnected: connectionStatus.isConnected,
+      localIntegrationKey,
+    });
 
   useEffect(() => {
     setIsMounted(true);
@@ -96,30 +72,56 @@ export default function PlaygroundClient() {
 
   useEffect(() => {
     if (isMounted) {
-      // Only show toast after component is mounted on client
-      const error = searchParams.get("error");
-      if (error) {
-        toast.error("Authentication Error", {
-          description: decodeURIComponent(error),
-          duration: 5000,
-        });
-        const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.delete("error");
+      const success = searchParams.get("success");
+      const workspace = searchParams.get("workspace");
 
-        // Update the URL without the error parameter
+      if (success === "notion-connected" && workspace) {
+        toast.success("Connected to Notion workspace", {
+          description: `Successfully connected to ${decodeURIComponent(workspace)}`,
+        });
+
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 2000);
+        setActiveStep("step-2");
+
+        // Clean up URL
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete("success");
+        newSearchParams.delete("workspace");
         const newPathname = newSearchParams.toString()
           ? `/playground?${newSearchParams.toString()}`
           : "/playground";
+        router.replace(newPathname);
+      }
 
+      // Handle error toast separately
+      const error = searchParams.get("error");
+      if (error) {
+        toast.error("Error", {
+          description: decodeURIComponent(error),
+          duration: 5000,
+        });
+
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete("error");
+        const newPathname = newSearchParams.toString()
+          ? `/playground?${newSearchParams.toString()}`
+          : "/playground";
         router.replace(newPathname);
       }
     }
   }, [searchParams, isMounted, router]);
 
+  useEffect(() => {
+    if (user && isInitialMount.current) {
+      checkConnectionStatus();
+      isInitialMount.current = false;
+    }
+  }, [user, checkConnectionStatus]);
+
   // Reset state when user changes
   useEffect(() => {
     if (!user) {
-      setConnectionStatus({ isConnected: false });
       setSelectedPageId("");
       setConvertedContent(null);
       setActiveStep("step-1");
@@ -135,74 +137,68 @@ export default function PlaygroundClient() {
     }
   }, [connectionStatus.isConnected]);
 
-  // Handle Notion workspace connection
-  const connectNotion = (integrationKey?: string) => {
-    setConnectionStatus({
-      isConnected: true,
-      workspace: {
-        id: "workspace_1",
-        name: "ABCD Workspace",
-      },
-    });
+  // Handle Notion workspace connection with OAuth
+  const handleConnectOAuth = async () => {
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
 
-    toast.success("Connected to Notion workspace", {
-      description: "Your workspace is now connected",
-    });
+    try {
+      await connectWithOAuth();
+    } catch (error) {
+      console.error("OAuth error:", error);
+      toast.error("Failed to initiate Notion connection");
+    }
+  };
 
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 2000);
+  // Handle Notion workspace connection with integration key
+  const handleConnectNotion = async (integrationKey?: string) => {
+    if (!integrationKey) return;
 
-    // Auto transition to step 2
-    setActiveStep("step-2");
+    const success = await connectWithKey(integrationKey);
+
+    if (success) {
+      toast.success("Connected to Notion workspace", {
+        description: "Your workspace is now connected",
+      });
+
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
+
+      // Auto transition to step 2
+      setActiveStep("step-2");
+    }
   };
 
   // Handle disconnecting from Notion
-  const disconnectNotion = () => {
-    setConnectionStatus({ isConnected: false });
-    setSelectedPageId("");
-    setConvertedContent(null);
+  const handleDisconnectNotion = async () => {
+    const success = await disconnect();
 
-    toast.info("Notion workspace disconnected");
-
-    // Go back to step 1
-    setActiveStep("step-1");
+    if (success) {
+      setSelectedPageId("");
+      toast.info("Notion workspace disconnected");
+      // Go back to step 1
+      setActiveStep("step-1");
+    }
   };
 
   // Handle conversion
-  const handleConvert = () => {
-    if (selectedPageId) {
-      setIsConverting(true);
-      // Simulate conversion process
-      setTimeout(() => {
-        setConvertedContent(sampleOutput);
-        setIsConverting(false);
+  const handleConvert = async () => {
+    if (selectedPageId && connectionStatus.isConnected) {
+      const success = await convertPage(selectedPageId, outputFormat);
 
+      if (success) {
         toast.success("Conversion Complete", {
           description: "Your page has been successfully converted",
         });
-      }, 800);
+      }
     }
   };
 
-  const loadPagesFromAPI = async (query: string): Promise<NotionPage[]> => {
-    if (!connectionStatus.isConnected) return [];
-
-    try {
-      const response = await fetch(
-        `/api/notion/pages/search?query=${encodeURIComponent(query)}`,
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.pages || [];
-    } catch (error) {
-      console.error("Failed to load pages:", error);
-      toast.error("Failed to load pages from Notion");
-      return [];
-    }
+  // Load pages from Notion API
+  const loadPagesFromAPI = async (query: string) => {
+    return await searchPages(query);
   };
 
   return (
@@ -267,9 +263,12 @@ export default function PlaygroundClient() {
                       <ConnectWorkspace
                         isAuthenticated={!!user}
                         connectionStatus={connectionStatus}
-                        onConnect={connectNotion}
-                        onDisconnect={disconnectNotion}
+                        onConnect={handleConnectNotion}
+                        onConnectOAuth={handleConnectOAuth}
+                        onDisconnect={handleDisconnectNotion}
                         onAuthRequest={() => setAuthModalOpen(true)}
+                        isConnecting={isConnecting}
+                        isDisconnecting={isDisconnecting}
                       />
                     </div>
                   </AccordionContent>
@@ -328,6 +327,7 @@ export default function PlaygroundClient() {
                         onSelectFormat={setOutputFormat}
                         onConvert={handleConvert}
                         loadPages={loadPagesFromAPI}
+                        isLoading={isPagesLoading}
                       />
                     </div>
                   </AccordionContent>
