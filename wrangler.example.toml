@@ -1,0 +1,9 @@
+name = "notion-converter"
+compatibility_date = "2023-08-15"
+main = ".vercel/output/functions/_worker.js"
+
+# Binding for D1 database
+[[d1_databases]]
+binding = "D1DATABASE"
+database_name = "notion_converter_db"
+database_id = "YOUR_D1_DATABASE_ID" # Replace with actual ID after creation

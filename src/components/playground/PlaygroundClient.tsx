@@ -126,6 +126,26 @@ export default function PlaygroundClient() {
     }
   };
 
+  const loadPagesFromAPI = async (query: string): Promise<NotionPage[]> => {
+    if (!connectionStatus.isConnected) return [];
+
+    try {
+      const response = await fetch(
+        `/api/notion/pages/search?query=${encodeURIComponent(query)}`,
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.pages || [];
+    } catch (error) {
+      console.error("Failed to load pages:", error);
+      return [];
+    }
+  };
+
   return (
     <div className="bg-background">
       {/* Header */}
@@ -187,13 +207,13 @@ export default function PlaygroundClient() {
             {/* Convert Section */}
             <ConversionForm
               isConnected={connectionStatus.isConnected}
-              pages={samplePages}
               selectedPageId={selectedPageId}
               selectedFormat={outputFormat}
               isConverting={isConverting}
               onSelectPage={setSelectedPageId}
               onSelectFormat={setOutputFormat}
               onConvert={handleConvert}
+              loadPages={loadPagesFromAPI}
             />
           </div>
 

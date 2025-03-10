@@ -4,7 +4,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { FiCheckCircle } from "react-icons/fi";
 
 export function SEOContent() {
   const { user } = useAuth();
@@ -182,25 +182,25 @@ export function SEOContent() {
               </p>
               <div className="space-y-2">
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <FiCheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
                   <span>
                     Markdown: Great for GitHub, documentation, and most CMS
                     platforms
                   </span>
                 </div>
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <FiCheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
                   <span>
                     MDX: Perfect for Next.js, Gatsby, and other React-based
                     sites
                   </span>
                 </div>
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <FiCheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
                   <span>HTML: Ideal for traditional websites and CMSes</span>
                 </div>
                 <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <FiCheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
                   <span>JSX: For React applications and components</span>
                 </div>
               </div>
@@ -300,51 +300,51 @@ export function SEOContent() {
               </p>
               <ul className="grid grid-cols-2 gap-2">
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Headings (H1-H3)</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Rich text formatting</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Lists (bulleted & numbered)</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>To-do lists</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Tables</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Code blocks</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Callouts</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Toggle lists</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Images</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Quotes</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Dividers</span>
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   <span>Links</span>
                 </li>
               </ul>

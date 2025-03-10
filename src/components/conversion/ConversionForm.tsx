@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageSelector } from "@/components/notion/PageSelector";
+import { PageCombobox } from "@/components/notion/PageCombobox";
 import { OutputSelector } from "./OutputSelector";
 import { RiQuestionLine } from "react-icons/ri";
 import {
@@ -15,24 +15,24 @@ import { NotionPage, OutputFormat } from "@/types";
 
 interface ConversionFormProps {
   isConnected: boolean;
-  pages: NotionPage[];
   selectedPageId: string;
   selectedFormat: OutputFormat;
   isConverting: boolean;
   onSelectPage: (pageId: string) => void;
   onSelectFormat: (format: OutputFormat) => void;
   onConvert: () => void;
+  loadPages: (query: string) => Promise<NotionPage[]>;
 }
 
 export function ConversionForm({
   isConnected,
-  pages,
   selectedPageId,
   selectedFormat,
   isConverting,
   onSelectPage,
   onSelectFormat,
   onConvert,
+  loadPages,
 }: ConversionFormProps) {
   return (
     <Card>
@@ -42,7 +42,11 @@ export function ConversionForm({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="ml-1 h-6 w-6">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-1 h-6 w-6 cursor-pointer"
+                >
                   <RiQuestionLine className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -57,11 +61,11 @@ export function ConversionForm({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <PageSelector
+        <PageCombobox
           disabled={!isConnected}
-          pages={pages}
           selectedPageId={selectedPageId}
           onSelectPage={onSelectPage}
+          loadPages={loadPages}
         />
         <OutputSelector
           disabled={!isConnected}
@@ -69,7 +73,7 @@ export function ConversionForm({
           onSelectFormat={onSelectFormat}
         />
         <Button
-          className="w-full"
+          className="w-full cursor-pointer"
           disabled={!isConnected || !selectedPageId}
           onClick={onConvert}
         >

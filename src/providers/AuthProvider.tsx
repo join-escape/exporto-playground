@@ -1,87 +1,53 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import { User } from "@/types";
+import { createContext, useContext, ReactNode } from "react";
+import { useSession, signIn, signOut, SessionProvider } from "next-auth/react";
+import { AuthProvider as AuthProviderType } from "@/types";
 
 interface AuthContextType {
-  user: User | null;
+  user: any;
   isLoading: boolean;
-  login: (provider: "github" | "google") => Promise<void>;
+  login: (provider: AuthProviderType) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Simulate fetching user on mount
-  useEffect(() => {
-    // Check local storage or session for existing auth
-    const checkAuth = async () => {
-      setIsLoading(true);
-      try {
-        // In a real app, you'd verify the token with your backend
-        const savedUser = localStorage.getItem("notionConverterUser");
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
-        }
-      } catch (error) {
-        console.error("Auth error:", error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
+// Auth context provider to handle auth logic
+function AuthContextProvider({ children }: { children: ReactNode }) {
+  const { data: session, status } = useSession();
+  const isLoading = status === "loading";
 
   // Login function
-  const login = async (provider: "github" | "google") => {
-    setIsLoading(true);
-    try {
-      // Simulate OAuth login
-      const mockUser: User = {
-        id: "user_" + Math.random().toString(36).substring(2, 9),
-        name: provider === "github" ? "GitHub User" : "Google User",
-        email: `user@${provider}.example.com`,
-        provider,
-      };
-
-      setUser(mockUser);
-      localStorage.setItem("notionConverterUser", JSON.stringify(mockUser));
-    } catch (error) {
-      console.error("Login error:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const login = async (provider: AuthProviderType) => {
+    await signIn(provider, { callbackUrl: "/playground" });
   };
 
   // Logout function
   const logout = async () => {
-    setIsLoading(true);
-    try {
-      localStorage.removeItem("notionConverterUser");
-      setUser(null);
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    await signOut({ callbackUrl: "/" });
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user: session?.user || null,
+        isLoading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
+  );
+}
+
+// Main Auth provider that wraps SessionProvider from next-auth
+export function AuthProvider({ children }: { children: ReactNode }) {
+  return (
+    <SessionProvider>
+      <AuthContextProvider>{children}</AuthContextProvider>
+    </SessionProvider>
   );
 }
 
