@@ -75,16 +75,18 @@ export function ConvertedContent({
       <div className="border-b px-4 py-3 bg-card flex items-center justify-between">
         <h2 className="font-medium">Output</h2>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="wrap-text"
-              checked={wrapText}
-              onCheckedChange={() => setWrapText(!wrapText)}
-            />
-            <Label htmlFor="wrap-text" className="text-sm cursor-pointer">
-              Wrap text
-            </Label>
-          </div>
+          {content && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="wrap-text"
+                checked={wrapText}
+                onCheckedChange={() => setWrapText(!wrapText)}
+              />
+              <Label htmlFor="wrap-text" className="text-sm cursor-pointer">
+                Wrap text
+              </Label>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
