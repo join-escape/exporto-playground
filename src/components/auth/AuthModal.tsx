@@ -40,8 +40,19 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md overflow-hidden">
+        {/* Gradient effect from top to bottom */}
+        <div
+          className="absolute top-0 left-0 w-full h-[120px] pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.07) 60%, rgba(59, 130, 246, 0) 100%)",
+            borderTopLeftRadius: "inherit",
+            borderTopRightRadius: "inherit",
+          }}
+        ></div>
+
+        <DialogHeader className="relative z-10">
           <DialogTitle className="text-xl font-semibold">
             Sign in to Notion Converter
           </DialogTitle>
@@ -50,7 +61,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             workspace.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-4 py-6">
+        <div className="flex flex-col gap-4 py-6 relative z-10">
           <Button
             className="flex items-center justify-center gap-2 w-full"
             variant="outline"
