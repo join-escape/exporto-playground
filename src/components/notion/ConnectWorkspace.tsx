@@ -61,11 +61,19 @@ export function ConnectWorkspace({
       {connectionStatus.isConnected ? (
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Connected to{" "}
-            <span className="font-medium text-foreground">
-              {`${connectionStatus.workspace?.name} Workspace` ||
-                "Notion Workspace"}
-            </span>
+            {connectionStatus.workspace?.name ? (
+              <>
+                Connected to{" "}
+                <span className="font-medium text-foreground">
+                  {connectionStatus.workspace.name}
+                </span>{" "}
+                workspace
+              </>
+            ) : (
+              <span className="font-medium text-foreground">
+                Connected via Integration Key
+              </span>
+            )}
           </div>
           <Button
             variant="destructive"

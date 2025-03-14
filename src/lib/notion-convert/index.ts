@@ -1,7 +1,7 @@
 import { Client } from "@notionhq/client";
 import { NotionConverter } from "notion-to-md";
 import { DefaultExporter } from "notion-to-md/plugins/exporter";
-import { MDXRenderer } from "notion-to-md/plugins/renderer/mdx";
+import { MDXRenderer } from "notion-to-md/plugins/renderer";
 
 export async function getNotionPages(integrationKey: string) {
   const notion = new Client({ auth: integrationKey });
