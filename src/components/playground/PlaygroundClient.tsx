@@ -27,6 +27,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useNotionConnection } from "@/hooks/useNotionConnection";
 import { useNotionPages } from "@/hooks/useNotionPages";
 import { useNotionConverter } from "@/hooks/useNotionConvert";
+import { BackgroundBlob } from "@/components/ui/background-blob";
+import { Link } from "lucide-react";
 
 export default function PlaygroundClient() {
   const { user } = useAuth();
@@ -40,6 +42,7 @@ export default function PlaygroundClient() {
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("markdown");
   const [showSuccess, setShowSuccess] = useState(false);
   const [activeStep, setActiveStep] = useState<string>("step-1");
+  const [showHelloBar, setShowHelloBar] = useState(true);
   const isInitialMount = useRef(true);
 
   // Custom hooks for Notion integration
@@ -203,11 +206,14 @@ export default function PlaygroundClient() {
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
+      {/* Background Blob */}
+      <BackgroundBlob />
+
       {/* Header */}
       <Header onOpenAuthModal={() => setAuthModalOpen(true)} />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 flex-1">
+      <main className="container mx-auto px-4 py-6 flex-1 relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-130px)]">
           {/* Left Column - Step-based Configuration and Controls */}
           <div className="space-y-6 h-full overflow-auto pb-6">
