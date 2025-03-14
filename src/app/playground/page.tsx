@@ -11,13 +11,13 @@ const PlaygroundClient = dynamic(
 
 // Generate metadata for the page
 export const metadata: Metadata = {
-  title: "Notion Convert Playground - Convert Notion Pages to Any Format",
+  title: "Exporto - Convert Notion Pages to Any Format",
   description:
     "Free online tool to convert Notion pages to Markdown, MDX, HTML, and JSX formats. Preserve formatting, structure, and content with our easy-to-use converter.",
   keywords:
     "notion converter, notion to markdown, notion to anything, notion to blog, notion to jsx, notion export, notion integration",
   openGraph: {
-    title: "Notion Convert Playground",
+    title: "Exporto Playground",
     description:
       "Convert/Export your Notion pages to Markdown, HTML, JSX or any format in a click",
     type: "website",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         url: "https://notionconvert.com/images/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Notion Convert Playground",
+        alt: "Exporto Playground",
       },
     ],
   },
@@ -57,7 +57,7 @@ export default function PlaygroundPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            name: "Notion Convert Playground",
+            name: "Exporto Playground",
             applicationCategory: "WebApplication",
             operatingSystem: "Web",
             offers: {

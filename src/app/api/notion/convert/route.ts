@@ -28,6 +28,7 @@ export async function POST(request: Request) {
 
     // If no integration key provided in request, try to get from authenticated user
     if (!notionKey) {
+      console.log({ notionKey });
       const session = await getServerSession(authOptions);
 
       if (!session?.user?.id) {

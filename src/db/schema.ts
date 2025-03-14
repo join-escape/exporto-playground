@@ -33,5 +33,7 @@ export const notionCredentials = sqliteTable("notion_credentials", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   integrationKey: text("integration_key").notNull(),
+  workspaceId: text("workspace_id"),
+  workspaceName: text("workspace_name"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });

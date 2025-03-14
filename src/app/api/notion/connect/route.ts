@@ -57,7 +57,11 @@ export async function POST(request: Request) {
           // Update existing credential
           await db
             .update(notionCredentials)
-            .set({ integrationKey })
+            .set({
+              integrationKey,
+              workspaceId: workspace?.id,
+              workspaceName: workspace?.name,
+            })
             .where(eq(notionCredentials.id, existingCredential[0].id));
         } else {
           // Create new credential
@@ -65,6 +69,8 @@ export async function POST(request: Request) {
             id: crypto.randomUUID(),
             userId: session.user.id,
             integrationKey,
+            workspaceId: workspace?.id,
+            workspaceName: workspace?.name,
             createdAt: new Date(),
           });
         }

@@ -58,9 +58,6 @@ export function OutputSelector({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="markdown">Markdown (.md)</SelectItem>
-          <SelectItem value="mdx">MDX (.mdx)</SelectItem>
-          <SelectItem value="html">HTML (.html)</SelectItem>
-          <SelectItem value="jsx">JSX (.jsx)</SelectItem>
         </SelectContent>
       </Select>
     </div>

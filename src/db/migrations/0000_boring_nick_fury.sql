@@ -18,6 +18,8 @@ CREATE TABLE `notion_credentials` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
 	`integration_key` text NOT NULL,
+	`workspace_id` text,
+	`workspace_name` text,
 	`created_at` integer NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );

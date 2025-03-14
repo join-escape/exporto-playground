@@ -63,7 +63,8 @@ export function ConnectWorkspace({
           <div className="text-sm text-muted-foreground">
             Connected to{" "}
             <span className="font-medium text-foreground">
-              {connectionStatus.workspace?.name || "Notion Workspace"}
+              {`${connectionStatus.workspace?.name} Workspace` ||
+                "Notion Workspace"}
             </span>
           </div>
           <Button
@@ -107,7 +108,7 @@ export function ConnectWorkspace({
             onChange={setIntegrationKey}
             onVerify={handleVerify}
             onAuthRequest={onAuthRequest}
-            isVerifying={isConnecting}
+            isLoading={isConnecting}
           />
         </>
       )}

@@ -34,7 +34,7 @@ export function Header({ onOpenAuthModal }: HeaderProps) {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <h1 className="text-xl font-semibold tracking-tight">
-            Notion Convert Playground
+            Exporto
             <sup className="text-sm align-baseline ml-1">beta</sup>
           </h1>
         </div>

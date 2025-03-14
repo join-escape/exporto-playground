@@ -33,16 +33,14 @@ export async function GET() {
 
       // Get the bot user to display workspace info
       const botUser = response.results.find((user) => user.type === "bot");
-      const workspace = botUser
-        ? {
-            id: botUser.id,
-            name: botUser.name,
-          }
-        : undefined;
 
       return NextResponse.json({
         isConnected: true,
-        workspace,
+        workspace: {
+          id: botUser?.id,
+          name:
+            botUser?.name || credentials[0].workspaceName || "Notion Workspace",
+        },
       });
     } catch (error) {
       // If the key is no longer valid, clean up the invalid credential

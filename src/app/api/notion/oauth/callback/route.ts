@@ -109,6 +109,8 @@ export async function GET(request: NextRequest) {
         .update(notionCredentials)
         .set({
           integrationKey: access_token,
+          workspaceId: workspace_id,
+          workspaceName: workspace_name,
           createdAt: new Date(),
         })
         .where(eq(notionCredentials.id, existingCredential[0].id));
@@ -118,6 +120,8 @@ export async function GET(request: NextRequest) {
         id: crypto.randomUUID(),
         userId,
         integrationKey: access_token,
+        workspaceId: workspace_id,
+        workspaceName: workspace_name,
         createdAt: new Date(),
       });
     }
