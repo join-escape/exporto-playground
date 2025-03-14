@@ -10,13 +10,14 @@ import {
   FiTwitter,
   FiGithub,
 } from "react-icons/fi";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AnimatePresence, motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { CaseSensitive, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface ConvertedContentProps {
   content: string | null;
@@ -34,6 +35,7 @@ export function ConvertedContent({
   onAuth,
 }: ConvertedContentProps) {
   const [copied, setCopied] = useState(false);
+  const [wrapText, setWrapText] = useState(true);
 
   useEffect(() => {
     if (copied) {
@@ -72,162 +74,162 @@ export function ConvertedContent({
     <div className="border rounded-lg h-[calc(100vh-160px)] flex flex-col overflow-hidden">
       <div className="border-b px-4 py-3 bg-card flex items-center justify-between">
         <h2 className="font-medium">Output</h2>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1 text-xs"
-            asChild
-          >
-            <Link
-              href="https://github.com/souvikinator/notion-to-md/issues/new?title=[Bug] Summarize the issue"
-              target="_blank"
-              referrerPolicy="no-referrer"
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="wrap-text"
+              checked={wrapText}
+              onCheckedChange={() => setWrapText(!wrapText)}
+            />
+            <Label htmlFor="wrap-text" className="text-sm cursor-pointer">
+              Wrap text
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1 text-xs"
+              asChild
             >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Report a Bug
-            </Link>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1 text-xs"
-            asChild
-          >
-            <Link
-              href="https://github.com/souvikinator/notion-to-md/issues/new?title=[Feature%20Request] Summarize the feature"
-              target="_blank"
-              referrerPolicy="no-referrer"
+              <Link
+                href="https://github.com/souvikinator/notion-to-md/issues/new?title=[Bug] Summarize the issue"
+                target="_blank"
+                referrerPolicy="no-referrer"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Report a Bug
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1 text-xs"
+              asChild
             >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Request a Feature
-            </Link>
-          </Button>
+              <Link
+                href="https://github.com/souvikinator/notion-to-md/issues/new?title=[Feature%20Request] Summarize the feature"
+                target="_blank"
+                referrerPolicy="no-referrer"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Request a Feature
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden relative">
-        <ScrollArea className="h-full w-full">
-          <div className="p-4">
-            {content ? (
-              <pre className="text-sm font-mono whitespace-pre-wrap">
-                {content}
-              </pre>
-            ) : (
-              <div className="flex flex-col items-center justify-center space-y-4 py-4 mx-4">
-                {/* 1. Powered by notion-to-md section */}
+      <div className="flex-1 relative overflow-hidden">
+        {content ? (
+          <div
+            className="h-full w-full overflow-auto"
+            style={{
+              maxHeight: "calc(100vh - 240px)",
+            }}
+          >
+            <pre
+              className={`text-sm font-mono p-4 ${
+                wrapText ? "whitespace-pre-wrap break-words" : "whitespace-pre"
+              }`}
+            >
+              {content}
+            </pre>
+          </div>
+        ) : (
+          <div className="p-4 h-full overflow-auto">
+            <div className="flex flex-col items-center justify-center space-y-4 py-4 mx-4">
+              {/* 1. Powered by notion-to-md section */}
+              <Alert className="bg-primary/5 border-primary/20 text-primary flex justify-between items-center">
+                <AlertDescription className="flex justify-between items-center">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  <span className="text-sm">
+                    Powered by <strong>notion-to-md</strong>
+                  </span>
+                  <Badge variant="outline" className="text-sm">
+                    v4
+                  </Badge>
+                </AlertDescription>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 gap-1 text-xs"
+                  asChild
+                >
+                  <Link
+                    href="https://github.com/souvikinator/notion-to-md"
+                    target="_blank"
+                    referrerPolicy="no-referrer"
+                  >
+                    <FiGithub className="h-3.5 w-3.5" />
+                    View on GitHub
+                  </Link>
+                </Button>
+              </Alert>
+
+              {/* 2. Sign up prompt - only if not authenticated */}
+              {!isAuthenticated && !isConnectedToNotion && (
                 <Alert className="bg-primary/5 border-primary/20 text-primary flex justify-between items-center">
                   <AlertDescription className="flex justify-between items-center">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    <span className="text-sm">
-                      Powered by <strong>notion-to-md</strong>
+                    <FiInfo className="h-4 w-4 mr-2" />
+                    <span>
+                      Sign in for a seamless Notion connection experience
                     </span>
-                    <Badge variant="outline" className="text-sm">
-                      v4
-                    </Badge>
                   </AlertDescription>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 gap-1 text-xs"
-                    asChild
-                  >
-                    <Link
-                      href="https://github.com/souvikinator/notion-to-md"
-                      target="_blank"
-                      referrerPolicy="no-referrer"
-                    >
-                      <FiGithub className="h-3.5 w-3.5" />
-                      View on GitHub
-                    </Link>
+                  <Button size="sm" onClick={onAuth} className="h-8 ml-2">
+                    Sign in
                   </Button>
                 </Alert>
+              )}
 
-                {/* 2. Sign up prompt - only if not authenticated */}
-                {!isAuthenticated && !isConnectedToNotion && (
-                  <Alert className="bg-primary/5 border-primary/20 text-primary flex justify-between items-center">
-                    <AlertDescription className="flex justify-between items-center">
-                      <FiInfo className="h-4 w-4 mr-2" />
-                      <span>
-                        Sign in for a seamless Notion connection experience
-                      </span>
-                    </AlertDescription>
-                    <Button size="sm" onClick={onAuth} className="h-8 ml-2">
-                      Sign in
-                    </Button>
-                  </Alert>
-                )}
-
-                {/* 3. Features list - compact */}
-                <div className="w-full py-3">
-                  <h3 className="text-base font-medium mb-3">Key Features</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-start gap-2">
-                      <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">
-                        Preserves structure & formatting
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">
-                        Multiple export formats
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">
-                        Handles complex tables & blocks
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">
-                        Privacy focused & fast processing
-                      </span>
-                    </div>
+              {/* 3. Features list - compact */}
+              <div className="w-full py-3">
+                <h3 className="text-base font-medium mb-3">Key Features</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-start gap-2">
+                    <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">
+                      Preserves structure & formatting
+                    </span>
                   </div>
-                </div>
-
-                {/* Placeholder illustration */}
-                <div className="w-full flex items-center justify-center p-6">
-                  <div className="border border-dashed border-muted-foreground/30 rounded-lg p-8 text-center flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                      <CaseSensitive />
-                    </div>
-                    <p className="text-muted-foreground text-sm">
-                      Your converted content will appear here
-                    </p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">
-                      Scroll down for detailed instructions
-                    </p>
+                  <div className="flex items-start gap-2">
+                    <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">
+                      Multiple export formats
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">
+                      Handles complex tables & blocks
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <FiCheck className="mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">
+                      Privacy focused & fast processing
+                    </span>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        </ScrollArea>
 
-        {/* Success message overlay */}
-        <AnimatePresence>
-          {showSuccess && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="absolute top-4 right-4 z-10"
-            >
-              <Alert className="bg-green-500/10 border-green-500/20 text-green-500">
-                <div className="flex items-center">
-                  <FiCheck className="h-4 w-4 mr-2" />
-                  <AlertDescription>
-                    Successfully connected to Notion!
-                  </AlertDescription>
+              {/* Placeholder illustration */}
+              <div className="w-full flex items-center justify-center p-6">
+                <div className="border border-dashed border-muted-foreground/30 rounded-lg p-8 text-center flex flex-col items-center">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <CaseSensitive />
+                  </div>
+                  <p className="text-muted-foreground text-sm">
+                    Your converted content will appear here
+                  </p>
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    Scroll down for detailed instructions
+                  </p>
                 </div>
-              </Alert>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {content && (
